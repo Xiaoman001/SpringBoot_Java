@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.InvoiceMapper">
+
+    <sql id="Base_Column_List">
+        invoice_id, usr_id, invoice_receipts_id, invoice_code, invoice_num, cost, invoice_time,
+        check_code, sold_taxid, kind, file_id, invoice_kind, invoice_name, note, tax
+    </sql>
+
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.out.InvoiceWithRecp">
+        <id column="invoice_id" jdbcType="INTEGER" property="invoiceId" />
+        <result column="usr_id" jdbcType="INTEGER" property="usrId" />
+        <result column="invoice_receipts_id" jdbcType="VARCHAR" property="invoiceReceiptsId" />
+        <result column="invoice_code" jdbcType="VARCHAR" property="invoiceCode" />
+        <result column="invoice_num" jdbcType="VARCHAR" property="invoiceNum" />
+        <result column="cost" jdbcType="DECIMAL" property="cost" />
+        <result column="invoice_time" jdbcType="TIMESTAMP" property="invoiceTime" />
+        <result column="check_code" jdbcType="VARCHAR" property="checkCode" />
+        <result column="sold_taxid" jdbcType="VARCHAR" property="soldTaxid" />
+        <result column="kind" jdbcType="VARCHAR" property="kind" />
+        <result column="file_id" jdbcType="INTEGER" property="fileId" />
+        <result column="invoice_kind" jdbcType="VARCHAR" property="invoiceKind" />
+        <result column="invoice_name" jdbcType="VARCHAR" property="invoiceName" />
+        <result column="note" jdbcType="LONGVARCHAR" property="note" />
+        <result column="states" jdbcType="VARCHAR" property="state" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="tax" javaType="DECIMAL" property="tax"/>
+    </resultMap>
+
+    <!-- 添加发票信息 -->
+    <insert id="insertInvoice" useGeneratedKeys="true" keyProperty="invoiceId" parameterType="com.example.demo.entity.Invoice">
+        insert into TB_INVOICE (invoice_id, usr_id, invoice_receipts_id,
+                                invoice_code, invoice_num, cost,
+                                invoice_time, check_code, sold_taxid,
+                                kind, file_id, invoice_kind,
+                                invoice_name, note, tax)
+        values (#{invoiceId,jdbcType=INTEGER}, #{usrId,jdbcType=INTEGER}, #{invoiceReceiptsId,jdbcType=VARCHAR},
+                #{invoiceCode,jdbcType=VARCHAR}, #{invoiceNum,jdbcType=VARCHAR}, #{cost,jdbcType=DECIMAL},
+                #{invoiceTime,jdbcType=TIMESTAMP}, #{checkCode,jdbcType=VARCHAR}, #{soldTaxid,jdbcType=VARCHAR},
+                #{kind,jdbcType=VARCHAR}, #{fileId,jdbcType=INTEGER}, #{invoiceKind,jdbcType=VARCHAR},
+                #{invoiceName,jdbcType=VARCHAR}, #{note,jdbcType=LONGVARCHAR}, #{tax})
+    </insert>
+
+    <!--根据发票 id删除发票信息-->
+    <delete id="deleteInvoice" parameterType="java.lang.Integer">
+        delete from TB_INVOICE
+        where invoice_id = #{invoiceId,jdbcType=INTEGER}
+    </delete>
+
+    <!--更新发票信息-->
+    <update id="updateInvoice" parameterType="com.example.demo.entity.Invoice">
+        update TB_INVOICE
+        <set >
+            <if test="usrId != null" >
+                usr_id = #{usrId,jdbcType=INTEGER},
+            </if>
+            <if test="invoiceReceiptsId != null" >
+                invoice_receipts_id = #{invoiceReceiptsId,jdbcType=VARCHAR},
+            </if>
+            <if test="invoiceCode != null" >
+                invoice_code = #{invoiceCode,jdbcType=VARCHAR},
+            </if>
+            <if test="invoiceNum != null" >
+                invoice_num = #{invoiceNum,jdbcType=VARCHAR},
+            </if>
+            <if test="cost != null" >
+                cost = #{cost,jdbcType=DECIMAL},
+            </if>
+            <if test="invoiceTime != null" >
+                invoice_time = #{invoiceTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="checkCode != null" >
+                check_code = #{checkCode,jdbcType=VARCHAR},
+            </if>
+            <if test="soldTaxid != null" >
+                sold_taxid = #{soldTaxid,jdbcType=VARCHAR},
+            </if>
+            <if test="kind != null" >
+                kind = #{kind,jdbcType=VARCHAR},
+            </if>
+            <if test="fileId != null" >
+                file_id = #{fileId,jdbcType=INTEGER},
+            </if>
+            <if test="invoiceKind != null" >
+                invoice_kind = #{invoiceKind,jdbcType=VARCHAR},
+            </if>
+            <if test="invoiceName != null" >
+                invoice_name = #{invoiceName,jdbcType=VARCHAR},
+            </if>
+            <if test="tax != null" >
+                tax = #{tax,jdbcType=DECIMAL},
+            </if>
+            <if test="note != null" >
+                note = #{note,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="tax != null">
+                tax = #{tax}
+            </if>
+        </set>
+        where invoice_id = #{invoiceId,jdbcType=INTEGER}
+    </update>
+
+    <!--查询发票信息-->
+    <select id="queryInvoice" resultMap="BaseResultMap">
+        SELECT
+        TB_INVOICE.invoice_id,
+        TB_INVOICE.usr_id,
+        TB_INVOICE.invoice_code,
+        TB_INVOICE.invoice_num,
+        TB_INVOICE.cost,
+        TB_INVOICE.invoice_time,
+        TB_INVOICE.check_code,
+        TB_INVOICE.sold_taxid,
+        TB_INVOICE.kind,
+        TB_INVOICE.file_id,
+        TB_INVOICE.invoice_kind,
+        TB_INVOICE.note,
+        TB_INVOICE.invoice_name,
+        TB_INVOICE_RECEIPTS.states,
+        TB_INVOICE_RECEIPTS.create_time,
+        TB_INVOICE.tax,
+        TB_INVOICE.invoice_receipts_id
+        FROM
+        TB_INVOICE
+        LEFT JOIN
+        TB_INVOICE_RECEIPTS
+        ON
+        TB_INVOICE_RECEIPTS.invoice_receipts_id = TB_INVOICE.invoice_receipts_id
+        <where>
+            <if test="invoice.invoiceReceiptsId != null">
+                and TB_INVOICE.invoice_receipts_id = #{invoice.invoiceReceiptsId,jdbcType=INTEGER}
+            </if>
+            <if test="invoice.invoiceName != null">
+                and TB_INVOICE.invoice_name like CONCAT('%',#{invoice.invoiceName},'%')
+            </if>
+            <if test="invoice.usrId != null">
+                and TB_INVOICE.usr_id = #{invoice.usrId,jdbcType=INTEGER}
+            </if>
+            <if test="invoice.invoiceCode != null">
+                and TB_INVOICE.invoice_code like CONCAT('%',#{invoice.invoiceCode},'%')
+            </if>
+            <if test="invoice.invoiceNum != null">
+                and TB_INVOICE.invoice_num like CONCAT('%',#{invoice.invoiceNum},'%')
+            </if>
+            <if test="invoice.beginDate != null">
+                and TB_INVOICE.invoice_time > #{invoice.beginDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="invoice.endDate != null">
+                and TB_INVOICE.invoice_time &lt; #{invoice.endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="invoice.soldTaxid != null">
+                and TB_INVOICE.sold_taxid = #{invoice.soldTaxid,jdbcType=VARCHAR}
+            </if>
+            <if test="invoice.invoiceKind != null">
+                and TB_INVOICE.invoice_kind = #{invoice.invoiceKind,jdbcType=VARCHAR}
+            </if>
+            <if test="invoice.kind != null">
+                and TB_INVOICE.kind = #{invoice.kind,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <select id="checkInvoice" resultType="java.lang.Integer">
+        select count(*)
+        from TB_INVOICE
+        where invoice_code = #{num}
+    </select>
+
+</mapper>

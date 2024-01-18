@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.KindMapper">
+
+    <!-- 添加报销种类信息 -->
+    <insert id="insertKind" useGeneratedKeys="true" keyProperty="kindId">
+        insert into TB_KIND(kind_id, kind)
+        values(#{kindId},#{kind})
+    </insert>
+
+    <!--根据报销种类 id删除报销种类-->
+    <delete id="deleteKind">
+        delete from TB_KIND
+        where kind_id = #{kindId}
+    </delete>
+
+    <!--更新报销种类信息-->
+    <update id="updateKind">
+        update TB_KIND
+        <set>
+            <if test="kind != null">
+                kind = #{kind},
+            </if>
+        </set>
+        <where>
+            kind_id = #{kindId}
+        </where>
+    </update>
+
+    <!--查询报销种类信息-->
+    <select id="queryKind" resultType="com.example.demo.entity.Kind">
+        select kind_id kindId, kind
+        from TB_KIND
+        <where>
+            <if test="kind.kindId != null">
+                and kind_id = #{kind.kindId}
+            </if>
+            <if test="kind.kind != null">
+                and kind = #{kind.kind}
+            </if>
+        </where>
+    </select>
+
+</mapper>

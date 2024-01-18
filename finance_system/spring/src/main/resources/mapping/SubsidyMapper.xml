@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.SubsidyMapper">
+
+
+    <resultMap id="SubsidyResultMap" type="com.example.demo.entity.Subsidy" >
+        <id column="subsidy_id" property="subsidyId" jdbcType="INTEGER" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="cost" property="cost" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <insert id="insertSubsidy" useGeneratedKeys="true" keyProperty="subsidyId"  parameterType="com.example.demo.entity.Subsidy" >
+        insert into TB_SUBSIDY (subsidy_id, city, cost)
+        values (#{subsidyId,jdbcType=INTEGER}, #{city,jdbcType=VARCHAR}, #{cost,jdbcType=DECIMAL} )
+    </insert>
+
+    <delete id="deleteSubsidy" parameterType="java.lang.Integer" >
+        delete from TB_SUBSIDY
+        where subsidy_id = #{subsidyId,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateSubsidy" parameterType="com.example.demo.entity.Subsidy" >
+        update TB_SUBSIDY
+        <set>
+            <if test="city != null">
+                city = #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="cost != null">
+                cost = #{cost,jdbcType=DECIMAL}
+            </if>
+        </set>
+        where subsidy_id = #{subsidyId,jdbcType=INTEGER}
+    </update>
+
+    <select id="findSubsidy" resultMap="SubsidyResultMap" parameterType="com.example.demo.entity.Subsidy" >
+        select subsidy_id, city, cost
+        from TB_SUBSIDY
+        <where>
+            <if test="subsidy.cost != null">
+                and cost = #{subsidy.cost}
+            </if>
+            <if test="subsidy.city != null">
+                and city = #{subsidy.city}
+            </if>
+            <if test="subsidy.subsidyId != null">
+                and subsidyId = #{subsidy.subsidyId}
+            </if>
+        </where>
+    </select>
+</mapper>

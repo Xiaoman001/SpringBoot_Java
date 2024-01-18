@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.LoginMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.User" >
+        <id column="usr_id" property="usrId" jdbcType="INTEGER" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="base_id" property="baseId" jdbcType="INTEGER" />
+        <result column="department" property="department" jdbcType="VARCHAR" />
+        <result column="grant" property="grant" jdbcType="VARCHAR" />
+        <result column="last_settle_time" property="lastSettleTime" jdbcType="TIMESTAMP" />
+        <result column="role" property="role" jdbcType="VARCHAR" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="apply_time" property="applyTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        usr_id, password, name, base_id, department, `grant`, last_settle_time, role, user_name,
+        apply_time
+    </sql>
+
+    <!-- 根据用户名查询用户信息 -->
+    <select id="selectUserByUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from TB_USR
+        <where>
+            <if test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </if>
+            <if test="password != null">
+                and password = #{password}
+            </if>
+        </where>
+    </select>
+<!--    &lt;!&ndash; 根据用户名查询用户信息 &ndash;&gt;-->
+<!--    <select id="selectUserByUser" parameterType="java.lang.String" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List" />-->
+<!--        from TB_USR-->
+<!--        where user_name = ${userName} and password = ${password}-->
+<!--    </select>-->
+    <!-- 根据用户id查询用户信息 -->
+    <select id="selectUserByUserId" resultType="com.example.demo.entity.User">
+        select usr_id usrId,user_name userName,password, last_settle_time lastSettleTime
+        from TB_USR
+        where usr_id = #{usrId} and password = #{password}
+    </select>
+
+    <update id="changePasswd">
+        update TB_USR
+        set password = #{newPasswd}
+        where user_name = #{userName}
+    </update>
+
+    <update id="updateTime">
+        update TB_USR
+        set apply_time = #{applyTime}
+        where usr_id = #{userId}
+    </update>
+
+</mapper>

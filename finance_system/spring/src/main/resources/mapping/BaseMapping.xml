@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.BaseMapper">
+
+
+    <!-- 添加Base地信息 -->
+    <insert id="insertBase" useGeneratedKeys="true" keyProperty="baseId" parameterType="com.example.demo.entity.Base">
+        insert into TB_BASE(base_id,city, address)
+        values(#{baseId},#{city},#{address})
+    </insert>
+
+    <!--根据Base id删除Base地-->
+    <delete id="deleteBase">
+        delete from TB_BASE
+        where base_id = #{baseId}
+    </delete>
+
+    <!--更新Base地信息-->
+    <update id="updateBase">
+        update TB_BASE
+        <set>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="address != null">
+                address = #{address}
+            </if>
+        </set>
+        <where>
+            base_id = #{baseId}
+        </where>
+    </update>
+
+    <!--查询Base地信息-->
+    <select id="queryBase" resultType="com.example.demo.entity.Base">
+        select base_id baseID, city, address
+        from TB_BASE
+        <where>
+            <if test="base.address != null">
+                and address = #{base.address}
+            </if>
+            <if test="base.city != null">
+                and city = #{base.city}
+            </if>
+            <if test="base.baseId != null">
+                and base_id = #{base.baseId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

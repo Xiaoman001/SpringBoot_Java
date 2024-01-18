@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.TripInvoiceMapper">
+
+    <sql id="Base_Column_List">
+        TB_TRIP_INVOICE.usr_id,
+        TB_TRIP_INVOICE.trip_invoice_id,
+        TB_TRIP_INVOICE.file_id,
+        TB_TRIP_INVOICE.start_place,
+        TB_TRIP_INVOICE.end_place,
+        TB_TRIP_INVOICE.cost,
+        TB_TRIP_INVOICE.start_time,
+        TB_TRIP_INVOICE.end_time,
+        TB_TRIP_INVOICE.invoice_receipts_id,
+        TB_TRIP_INVOICE.identify,
+        TB_TRIP_INVOICE.tax,
+        TB_TRIP_INVOICE.tax_rate,
+        TB_TRIP_INVOICE.trip_code
+    </sql>
+
+    <resultMap id="tripRes" type="com.example.demo.entity.TripRes">
+        <result column="cost" property="money" jdbcType="INTEGER" />
+        <result column="start_time" property="date" jdbcType="DECIMAL" />
+        <result column="last_settle_time" property="startDate" jdbcType="DECIMAL" />
+        <result column="start_place" property="startPlace" jdbcType="VARCHAR"/>
+        <result column="end_place" property="endPlace" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.out.TripInvoiceWithrecp" >
+        <id column="trip_invoice_id" property="tripInvoiceId" jdbcType="INTEGER" />
+        <result column="usr_id" property="usrId" jdbcType="INTEGER" />
+        <result column="file_id" property="fileId" jdbcType="INTEGER" />
+        <result column="start_place" property="startPlace" jdbcType="VARCHAR" />
+        <result column="end_place" property="endPlace" jdbcType="VARCHAR" />
+        <result column="cost" property="cost" jdbcType="DECIMAL" />
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+        <result column="invoice_receipts_id" property="invoiceReceiptsId" jdbcType="INTEGER" />
+        <result column="states" jdbcType="VARCHAR" property="state" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="tax" property="tax" jdbcType="DECIMAL" />
+        <result column="tax_rate" property="taxRate" jdbcType="DECIMAL" />
+        <result column="trip_code" property="tripCode" jdbcType="VARCHAR"/>
+        <result column="invoice_receipts_id" property="invoiceReceiptsId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!-- 添加车票信息 -->
+    <insert id="insertTripInvoice" useGeneratedKeys="true" keyProperty="tripInvoiceId" parameterType="com.example.demo.entity.TripInvoice">
+        insert into TB_TRIP_INVOICE (trip_invoice_id, usr_id, file_id,
+                                     start_place, end_place, cost,
+                                     start_time, end_time, invoice_receipts_id,tax,tax_rate,identify,trip_code
+        )
+        values (#{tripInvoiceId,jdbcType=INTEGER}, #{usrId,jdbcType=INTEGER}, #{fileId,jdbcType=INTEGER},
+                #{startPlace,jdbcType=VARCHAR}, #{endPlace,jdbcType=VARCHAR}, #{cost,jdbcType=DECIMAL},
+                #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{invoiceReceiptsId,jdbcType=INTEGER},
+                #{tax},#{taxRate},#{identify},#{tripCode}
+               )
+    </insert>
+
+    <!--根据车票 id删除车票信息-->
+    <delete id="deleteTripInvoice" parameterType="java.lang.Integer">
+        delete from TB_TRIP_INVOICE
+        where trip_invoice_id = #{tripInvoiceId,jdbcType=INTEGER}
+    </delete>
+
+    <!--更新车票信息-->
+    <update id="updateTripInvoice" parameterType="com.example.demo.entity.TripInvoice">
+        update TB_TRIP_INVOICE
+        <set >
+            <if test="usrId != null" >
+                usr_id = #{usrId,jdbcType=INTEGER},
+            </if>
+            <if test="fileId != null" >
+                file_id = #{fileId,jdbcType=INTEGER},
+            </if>
+            <if test="startPlace != null" >
+                start_place = #{startPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="endPlace != null" >
+                end_place = #{endPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="cost != null" >
+                cost = #{cost,jdbcType=DECIMAL},
+            </if>
+            <if test="startTime != null" >
+                start_time = #{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null" >
+                end_time = #{endTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="invoiceReceiptsId != null" >
+                invoice_receipts_id = #{invoiceReceiptsId,jdbcType=INTEGER},
+            </if>
+            <if test="identify != null" >
+                identify = #{identify,jdbcType=VARCHAR},
+            </if>
+            <if test="tax != null" >
+                tax = #{tax,jdbcType=DECIMAL},
+            </if>
+            <if test="taxRate != null" >
+                tax_rate = #{taxRate,jdbcType=DECIMAL},
+            </if>
+            <if test=" tripCode != null">
+                trip_code = #{tripCode}
+            </if>
+        </set>
+        where trip_invoice_id = #{tripInvoiceId}
+    </update>
+
+    <!--查询车票信息-->
+    <select id="queryTripInvoice" parameterType="com.example.demo.entity.in.TripInvoiceSelect" resultMap="BaseResultMap">
+        SELECT
+        TB_TRIP_INVOICE.trip_invoice_id,
+        TB_TRIP_INVOICE.usr_id,
+        TB_TRIP_INVOICE.file_id,
+        TB_TRIP_INVOICE.start_place,
+        TB_TRIP_INVOICE.end_place,
+        TB_TRIP_INVOICE.cost,
+        TB_TRIP_INVOICE.start_time,
+        TB_TRIP_INVOICE.end_time,
+        TB_TRIP_INVOICE.identify,
+        TB_INVOICE_RECEIPTS.create_time,
+        TB_INVOICE_RECEIPTS.states,
+        tax,
+        tax_rate,
+        trip_code,
+        TB_TRIP_INVOICE.invoice_receipts_id
+        FROM
+        TB_TRIP_INVOICE
+        LEFT JOIN
+        TB_INVOICE_RECEIPTS
+        ON
+        TB_TRIP_INVOICE.invoice_receipts_id = TB_INVOICE_RECEIPTS.invoice_receipts_id
+        <where>
+            <if test="tripInvoiceSelect.invoiceReceiptsId != null">
+                and TB_TRIP_INVOICE.invoice_receipts_id = #{tripInvoiceSelect.invoiceReceiptsId,jdbcType=INTEGER}
+            </if>
+            <if test="tripInvoiceSelect.usrId != null">
+                and TB_TRIP_INVOICE.usr_id = #{tripInvoiceSelect.usrId,jdbcType=INTEGER}
+            </if>
+            <if test="tripInvoiceSelect.address != null">
+                and (TB_TRIP_INVOICE.start_place = #{tripInvoiceSelect.address,jdbcType=VARCHAR}
+                     or TB_TRIP_INVOICE.end_place = #{tripInvoiceSelect.address,jdbcType=VARCHAR})
+            </if>
+            <if test="tripInvoiceSelect.beginDate != null">
+                and TB_TRIP_INVOICE.start_time > #{tripInvoiceSelect.beginDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="tripInvoiceSelect.endDate != null">
+                and TB_TRIP_INVOICE.end_time &lt; #{tripInvoiceSelect.endDate,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryTrip" resultMap="tripRes">
+        SELECT
+        TB_SUBSIDY.cost,
+        TB_TRIP_INVOICE.start_time,
+        TB_USR.last_settle_time,
+        TB_TRIP_INVOICE.start_place,
+        TB_TRIP_INVOICE.end_place
+        FROM
+        TB_USR,
+        TB_INVOICE_RECEIPTS
+        INNER JOIN
+        TB_TRIP_INVOICE
+        ON
+        TB_INVOICE_RECEIPTS.invoice_receipts_id = TB_TRIP_INVOICE.invoice_receipts_id
+        INNER JOIN
+        TB_SUBSIDY
+        ON
+        TB_TRIP_INVOICE.start_place = TB_SUBSIDY.city
+        WHERE
+        TB_USR.usr_id = #{userId} AND
+        TB_TRIP_INVOICE.invoice_receipts_id = #{invoiceReceiptsId}
+        ORDER BY
+        TB_TRIP_INVOICE.start_time
+    </select>
+
+    <select id="checkTrip" resultType="java.lang.Integer">
+        select count(*)
+        from TB_TRIP_INVOICE
+        where trip_code = #{num}
+    </select>
+
+</mapper>

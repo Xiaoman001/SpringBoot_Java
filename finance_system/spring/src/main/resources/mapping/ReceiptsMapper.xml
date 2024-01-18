@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.ReceiptsMapper">
+
+  <resultMap id="ReceiptsResultMap" type="com.example.demo.entity.Receipts" >
+    <id column="invoice_receipts_id" property="invoiceReceiptsId" jdbcType="INTEGER" />
+    <result column="usr_id" property="usrId" jdbcType="INTEGER" />
+    <result column="total_cost" property="totalCost" jdbcType="DECIMAL" />
+    <result column="states" property="states" jdbcType="VARCHAR" />
+    <result column="subsidy_cost" property="subsidyCost" jdbcType="DECIMAL" />
+    <result column="approval_note" property="approvalNote" jdbcType="VARCHAR" />
+    <result column="approver" property="approver" jdbcType="VARCHAR" />
+    <result column="user_note" property="userNote" jdbcType="LONGVARCHAR"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="tax_sum" property="taxSum" jdbcType="DECIMAL"/>
+  </resultMap>
+
+  <insert id="insertReceipts" useGeneratedKeys="true" keyProperty="invoiceReceiptsId">
+    insert into TB_INVOICE_RECEIPTS (invoice_receipts_id, usr_id, total_cost,
+    states, subsidy_cost, user_note,
+    approval_note, approver, create_time, tax_sum, title)
+    values (#{invoiceReceiptsId,jdbcType=INTEGER}, #{usrId,jdbcType=INTEGER}, #{totalCost,jdbcType=DECIMAL},
+    #{states,jdbcType=VARCHAR}, #{subsidyCost,jdbcType=DECIMAL}, #{userNote,jdbcType=LONGVARCHAR},
+    #{approvalNote,jdbcType=LONGVARCHAR}, #{approver,jdbcType=LONGVARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+    #{taxSum,jdbcType=DECIMAL},#{title})
+  </insert>
+
+
+  <delete id="deleteReceipts" parameterType="java.lang.Integer" >
+    delete from TB_INVOICE_RECEIPTS
+    where invoice_receipts_id = #{invoiceReceiptsId,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateReceipts" parameterType="com.example.demo.entity.Receipts" >
+    update TB_INVOICE_RECEIPTS
+    <set >
+      <if test="usrId != null" >
+        usr_id = #{usrId,jdbcType=INTEGER},
+      </if>
+      <if test="totalCost != null" >
+        total_cost = #{totalCost,jdbcType=DECIMAL},
+      </if>
+      <if test="states != null" >
+        states = #{states,jdbcType=VARCHAR},
+      </if>
+      <if test="subsidyCost != null" >
+        subsidy_cost = #{subsidyCost,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taxSum != null" >
+        tax_sum = #{taxSum,jdbcType=DECIMAL},
+      </if>
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="userNote != null" >
+        user_note = #{userNote,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="approvalNote != null" >
+        approval_note = #{approvalNote,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="approver != null" >
+        approver = #{approver,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where invoice_receipts_id = #{invoiceReceiptsId,jdbcType=INTEGER}
+  </update>
+
+  <select id="findReceipts" resultType="com.example.demo.entity.out.ReceiptsWithUser">
+    SELECT
+    TB_USR.department department,
+    TB_USR.`name` name,
+    `grant`,
+    title,
+    TB_INVOICE_RECEIPTS.total_cost totalCost,
+    TB_INVOICE_RECEIPTS.user_note userNote,
+    TB_INVOICE_RECEIPTS.states states,
+    TB_INVOICE_RECEIPTS.approval_note approvalNote,
+    TB_INVOICE_RECEIPTS.subsidy_cost subsidyCost,
+    TB_INVOICE_RECEIPTS.approver approver,
+    TB_INVOICE_RECEIPTS.create_time createTime,
+    TB_INVOICE_RECEIPTS.tax_sum taxSum,
+    TB_INVOICE_RECEIPTS.invoice_receipts_id invoiceReceiptsId,
+    TB_INVOICE_RECEIPTS.usr_id usrId,
+    TB_USR.last_settle_time lastSettleTime,
+    `role`,
+    TB_USR.user_name userName,
+    TB_USR.apply_time applyTime,
+    TB_USR.base_id baseId
+    FROM
+    TB_USR
+    INNER JOIN
+    TB_INVOICE_RECEIPTS
+    ON
+    TB_USR.usr_id = TB_INVOICE_RECEIPTS.usr_id
+    <where>
+      <if test="receiptsIn.department != null">
+        and department = #{receiptsIn.department}
+      </if>
+      <if test="receiptsIn.invoiceReceiptsId != null">
+        and invoice_receipts_id = #{receiptsIn.invoiceReceiptsId}
+      </if>
+      <if test="receiptsIn.usrId != null">
+        and TB_INVOICE_RECEIPTS.usr_id = #{receiptsIn.usrId}
+      </if>
+      <if test="receiptsIn.totalCost != null">
+        and total_cost >= #{receiptsIn.totalCost}
+      </if>
+      <if test="receiptsIn.approvalNote != null">
+        and approval_note = #{receiptsIn.approvalNote}
+      </if>
+      <if test="receiptsIn.states != null and receiptsIn.states != '6'.toString()">
+        and states = #{receiptsIn.states}
+      </if>
+      <if test="receiptsIn.states != null and receiptsIn.states == '6'.toString()">
+        and (states = 1 or states = 2 or states = 3)
+      </if>
+      <if test="receiptsIn.subsidyCost != null">
+        and subsidy_cost = #{receiptsIn.subsidyCost}
+      </if>
+      <if test="receiptsIn.approval != null">
+        and approver like CONCAT('%',#{receiptsIn.approval},' %')
+      </if>
+      <if test="receiptsIn.title != null">
+        and title like CONCAT('%',#{receiptsIn.title},'%')
+      </if>
+      <if test="receiptsIn.beginTime != null">
+        and create_time > #{receiptsIn.beginTime,jdbcType=TIMESTAMP}
+      </if>
+      <if test="receiptsIn.endTime != null">
+        and create_time &lt; #{receiptsIn.endTime,jdbcType=TIMESTAMP}
+      </if>
+    </where>
+  </select>
+
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.RecordMapper">
+
+    <!-- 添加操作日志信息 -->
+    <insert id="insertRecord" useGeneratedKeys="true" keyProperty="opId">
+        insert into TB_OP_RECORD(op_id,target_id, usr_id, op_time, note, op_type)
+        values(#{opId},#{targetId},#{usrId},now(),#{note},#{opType})
+    </insert>
+
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.mapper.TaxMapper" >
+
+    <resultMap id="TaxResultMap" type="com.example.demo.entity.Tax" >
+        <id column="tax_rate_id" property="taxRateId" jdbcType="INTEGER" />
+        <result column="tax_rate_type" property="taxRateType" jdbcType="VARCHAR" />
+        <result column="tax_rate" property="taxRate" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <sql id="Tax_Column_List" >
+        tax_rate_id, tax_rate_type, tax_rate
+    </sql>
+
+    <insert id="insertTaxRate" useGeneratedKeys="true" keyProperty="taxRateId" parameterType="com.example.demo.entity.Tax" >
+        insert into TB_TAX (tax_rate_id, tax_rate_type, tax_rate)
+        values (#{taxRateId,jdbcType=INTEGER}, #{taxRateType,jdbcType=VARCHAR}, #{taxRate,jdbcType=DECIMAL})
+    </insert>
+
+    <delete id="deleteTaxRate" parameterType="java.lang.Integer" >
+        delete from TB_TAX
+        where tax_rate_id = #{taxRateId,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateTaxRate" parameterType="com.example.demo.entity.Tax" >
+        update TB_TAX
+        <set>
+            <if test="taxRateType != null">
+                tax_rate_type = #{taxRateType,jdbcType=VARCHAR},
+            </if>
+            <if test="taxRate != null">
+                tax_rate = #{taxRate,jdbcType=DECIMAL}
+            </if>
+        </set>
+        where tax_rate_id = #{taxRateId,jdbcType=INTEGER}
+    </update>
+
+    <!--查询税率信息-->
+    <select id="queryTaxRate" resultMap="TaxResultMap" parameterType="com.example.demo.entity.Tax">
+        select tax_rate_id, tax_rate_type, tax_rate
+        from TB_TAX
+        <where>
+            <if test="tax.taxRateType != null">
+                and tax_rate_type = #{tax.taxRateType}
+            </if>
+            <if test="tax.taxRate != null">
+                and tax_rate = #{tax.taxRate}
+            </if>
+            <if test="tax.taxRateId != null">
+                and tax_rate_id = #{tax.taxRateId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

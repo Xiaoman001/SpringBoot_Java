@@ -1,0 +1,64 @@
+server:
+  port: 6790
+
+#以下是https
+#server.ssl.key-store=server.keystore
+#server.ssl.key-alias=tomcat
+#server.ssl.enabled=true
+#server.ssl.key-store-password=syk852456
+#server.ssl.key-store-type=JKS    121.43.229.173:3306  user  123456zj
+
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/Finance_system?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'
+    username: root
+    password: 9981
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5                                                                 #初始化连接大小
+      min-idle: 5                                                                     #最小连接池数量
+      max-active: 20                                                                  #最大连接池数量
+      max-wait: 60000                                                                 #获取连接时最大等待时间，单位毫秒
+      time-between-eviction-runs-millis: 60000                                        #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      min-evictable-idle-time-millis: 300000                                          #配置一个连接在池中最小生存的时间，单位是毫秒
+      validation-query: SELECT 1 FROM DUAL                                            #测试连接
+      test-while-idle: true                                                           #申请连接的时候检测，建议配置为true，不影响性能，并且保证安全性
+      test-on-borrow: false                                                           #获取连接时执行检测，建议关闭，影响性能
+      test-on-return: false                                                           #归还连接时执行检测，建议关闭，影响性能
+      max-pool-prepared-statement-per-connection-size: 20                             #开启poolPreparedStatements后生效
+      filters: stat,wall                                                              #配置扩展插件，常用的插件有=>stat:监控统计  wall:防御sql注入
+      connection-properties: 'druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000' #通过connectProperties属性来打开mergeSql功能;慢SQL记录
+      # StatViewServlet配置，说明请参考Druid Wiki，配置_StatViewServlet配置
+      stat-view-servlet:
+        enabled: true                                                                 #是否开启内置监控页面，默认值为 false
+        url-pattern: '/druid/*'                                                       #StatViewServlet 的映射路径，即内置监控页面的访问地址
+        reset-enable: true                                                            #是否启用重置按钮
+        login-username: admin                                                         #内置监控页面的登录页用户名 username
+        login-password: admin                                                         #内置监控页面的登录页密码 password
+        # WebStatFilter配置，说明请参考Druid Wiki，配置_配置WebStatFilter
+      web-stat-filter:
+        enabled: true                                                                 #是否开启内置监控中的 Web-jdbc 关联监控的数据
+        url-pattern: '/*'                                                             #匹配路径
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'                     #排除路径
+        session-stat-enable: true                                                     #是否监控session
+        # Spring监控配置，说明请参考Druid Github Wiki，配置_Druid和Spring关联监控配置
+      aop-patterns: net.biancheng.www.*
+
+# mybatis的 Mapping.xml的位置
+mybatis-plus:
+  mapper-locations: classpath:mapping/*.xml
+# 指定POJO扫描包来让mybatis自动扫描到自定义的POJO，如果配置了该配置则不需要再ResultMap中指定全类名了
+  type-aliases-package: com.example.demo.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+file:
+  uploadFile: /file/
+  urlPath: 121.43.229.173:6790/
+
+# 打印sql  日志
+logging:
+  level:
+    com.ustc.learn.mybatis: DEBUG
+

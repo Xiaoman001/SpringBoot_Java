@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.NoInvoiceMapper">
+
+    <sql id="Base_Column_List">
+        nonInvoice_id, usr_id, file_id, cost, invoice_receipts_id, note, nonInvoice_name, kind,tax,tax_rate
+    </sql>
+
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.out.NoInvoiceWithRecp">
+        <id column="nonInvoice_id" jdbcType="INTEGER" property="noninvoiceId" />
+        <result column="usr_id" jdbcType="INTEGER" property="usrId" />
+        <result column="file_id" jdbcType="INTEGER" property="fileId" />
+        <result column="cost" jdbcType="DECIMAL" property="cost" />
+        <result column="invoice_receipts_id" jdbcType="INTEGER" property="invoiceReceiptsId" />
+        <result column="note" jdbcType="VARCHAR" property="note" />
+        <result column="nonInvoice_name" jdbcType="VARCHAR" property="noninvoiceName" />
+        <result column="kind" jdbcType="VARCHAR" property="kind" />
+        <result column="states" jdbcType="VARCHAR" property="state" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="tax" property="tax" jdbcType="DECIMAL" />
+        <result column="tax_rate" property="taxRate" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <!-- 添加非发票信息 -->
+    <insert id="insertNoInvoice" useGeneratedKeys="true" keyProperty="noninvoiceId" parameterType="com.example.demo.entity.NoInvoice">
+        insert into TB_NON_INVOICE (nonInvoice_id, usr_id, file_id,
+        cost, invoice_receipts_id, note,
+        nonInvoice_name, kind, tax, tax_rate)
+        values (#{noninvoiceId,jdbcType=INTEGER}, #{usrId,jdbcType=INTEGER}, #{fileId,jdbcType=INTEGER},
+        #{cost,jdbcType=DECIMAL}, #{invoiceReceiptsId,jdbcType=INTEGER}, #{note,jdbcType=VARCHAR},
+        #{noninvoiceName,jdbcType=VARCHAR}, #{kind,jdbcType=VARCHAR},#{tax},#{taxRate})
+    </insert>
+
+    <!--根据非发票 id删除非发票信息-->
+    <delete id="deleteNoInvoice" parameterType="java.lang.Integer">
+        delete from TB_NON_INVOICE
+        where nonInvoice_id = #{noninvoiceId,jdbcType=INTEGER}
+    </delete>
+
+    <!--更新非发票信息-->
+    <update id="updateNoInvoice" parameterType="com.example.demo.entity.NoInvoice">
+        update TB_NON_INVOICE
+        <set >
+            <if test="usrId != null" >
+                usr_id = #{usrId,jdbcType=INTEGER},
+            </if>
+            <if test="fileId != null" >
+                file_id = #{fileId,jdbcType=INTEGER},
+            </if>
+            <if test="cost != null" >
+                cost = #{cost,jdbcType=DECIMAL},
+            </if>
+            <if test="invoiceReceiptsId != null" >
+                invoice_receipts_id = #{invoiceReceiptsId,jdbcType=INTEGER},
+            </if>
+            <if test="note != null" >
+                note = #{note,jdbcType=VARCHAR},
+            </if>
+            <if test="noninvoiceName != null" >
+                nonInvoice_name = #{noninvoiceName,jdbcType=VARCHAR},
+            </if>
+            <if test="kind != null" >
+                kind = #{kind,jdbcType=VARCHAR},
+            </if>
+            <if test="tax != null" >
+                tax = #{tax,jdbcType=DECIMAL},
+            </if>
+            <if test="taxRate != null" >
+                tax_rate = #{taxRate,jdbcType=DECIMAL},
+            </if>
+        </set>
+        where nonInvoice_id = #{noninvoiceId,jdbcType=INTEGER}
+    </update>
+
+    <!--查询非发票信息-->
+    <select id="queryNoInvoice" resultMap="BaseResultMap">
+        SELECT
+        TB_NON_INVOICE.nonInvoice_id,
+        TB_NON_INVOICE.usr_id,
+        TB_NON_INVOICE.file_id,
+        TB_NON_INVOICE.cost,
+        TB_NON_INVOICE.invoice_receipts_id,
+        TB_NON_INVOICE.note,
+        TB_NON_INVOICE.nonInvoice_name,
+        TB_NON_INVOICE.kind,
+        TB_INVOICE_RECEIPTS.states,
+        TB_INVOICE_RECEIPTS.create_time,
+        TB_NON_INVOICE.tax,
+        TB_NON_INVOICE.tax_rate
+        FROM
+        TB_NON_INVOICE
+        LEFT JOIN
+        TB_INVOICE_RECEIPTS
+        ON
+        TB_NON_INVOICE.invoice_receipts_id = TB_INVOICE_RECEIPTS.invoice_receipts_id
+        <where>
+            <if test="noInvoice.usrId != null">
+                and TB_NON_INVOICE.usr_id = #{noInvoice.usrId,jdbcType=INTEGER}
+            </if>
+            <if test="noInvoice.invoiceReceiptsId != null">
+                and TB_NON_INVOICE.invoice_receipts_id = #{noInvoice.invoiceReceiptsId,jdbcType=INTEGER}
+            </if>
+            <if test="noInvoice.noninvoiceName != null">
+                and TB_NON_INVOICE.nonInvoice_name like CONCAT('%',#{noInvoice.noninvoiceName},'%')
+            </if>
+        </where>
+    </select>
+
+</mapper>
